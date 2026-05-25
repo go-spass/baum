@@ -1,0 +1,10 @@
+.
+├── dir1
+│   ├── file_a.txt
+│   └── file_b.txt
+├── dir2
+│   └── subdir
+│       └── file_c.txt
+└── file_root.txt
+
+3 directories, 4 files

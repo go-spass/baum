@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 
+	"github.com/go-spass/baum/internal/tree"
 	"github.com/spf13/cobra"
 )
 
@@ -27,8 +27,12 @@ func newRootCmd(version string) *cobra.Command {
 			if len(args) == 1 {
 				root = args[0]
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "baum — not yet implemented (root: %s)\n", root)
-			return nil
+			return tree.Walk(cmd.OutOrStdout(), root, tree.Options{
+				MaxDepth: f.level,
+				All:      f.all,
+				DirsOnly: f.dirsOnly,
+				Color:    f.color,
+			})
 		},
 	}
 

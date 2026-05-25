@@ -1,0 +1,7 @@
+.
+├── .hidden_dir
+│   └── secret.txt
+├── .hidden_file
+└── visible.txt
+
+1 directory, 3 files
