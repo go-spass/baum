@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/go-spass/baum/internal/color"
 )
 
 // Options controls how the tree walk behaves.
@@ -18,9 +20,10 @@ type Options struct {
 
 // Walk traverses root and renders the directory tree to w.
 func Walk(w io.Writer, root string, opts Options) error {
-	fmt.Fprintln(w, root)
+	clr := color.New(opts.Color, w)
+	fmt.Fprintln(w, clr.Apply(root, os.ModeDir))
 	var dirs, files int
-	if err := walkDir(w, root, "", 1, opts, &dirs, &files); err != nil {
+	if err := walkDir(w, root, "", 1, opts, clr, &dirs, &files); err != nil {
 		return err
 	}
 	fmt.Fprintln(w, "")
@@ -28,7 +31,7 @@ func Walk(w io.Writer, root string, opts Options) error {
 	return nil
 }
 
-func walkDir(w io.Writer, dir, prefix string, depth int, opts Options, dirs, files *int) error {
+func walkDir(w io.Writer, dir, prefix string, depth int, opts Options, clr *color.Colorizer, dirs, files *int) error {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		return err
@@ -57,21 +60,31 @@ func walkDir(w io.Writer, dir, prefix string, depth int, opts Options, dirs, fil
 		name := entry.Name()
 		isSymlink := entry.Type()&os.ModeSymlink != 0
 
+		var mode os.FileMode
+		if info, err := entry.Info(); err == nil {
+			mode = info.Mode()
+		}
+
 		if isSymlink {
+			coloredName := clr.Apply(name, mode)
 			if target, err := os.Readlink(filepath.Join(dir, name)); err == nil {
-				name = name + " -> " + target
+				name = coloredName + " -> " + target
+			} else {
+				name = coloredName
 			}
 			*files++
 		} else if entry.IsDir() {
 			*dirs++
+			name = clr.Apply(name, mode)
 		} else {
 			*files++
+			name = clr.Apply(name, mode)
 		}
 
 		fmt.Fprintf(w, "%s%s%s\n", prefix, connector, name)
 
 		if entry.IsDir() && (opts.MaxDepth == 0 || depth < opts.MaxDepth) {
-			if err := walkDir(w, filepath.Join(dir, entry.Name()), childPrefix, depth+1, opts, dirs, files); err != nil {
+			if err := walkDir(w, filepath.Join(dir, entry.Name()), childPrefix, depth+1, opts, clr, dirs, files); err != nil {
 				return err
 			}
 		}
