@@ -1,0 +1,6 @@
+.
+├── dir_a
+└── dir_b
+    └── subdir
+
+3 directories

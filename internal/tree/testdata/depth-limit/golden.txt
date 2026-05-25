@@ -1,0 +1,6 @@
+.
+└── a
+    ├── b
+    └── other.txt
+
+2 directories, 1 file

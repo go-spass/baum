@@ -1,0 +1,5 @@
+.
+├── link.txt -> target.txt
+└── target.txt
+
+0 directories, 2 files
